@@ -1,8 +1,10 @@
 package com.takarabako.sharetube.config;
 
 import com.takarabako.sharetube.auth.CustomAccessDeniedHandler;
+import com.takarabako.sharetube.auth.oauth2.CustomOAuth2FailureHandler;
 import com.takarabako.sharetube.auth.oauth2.CustomOAuth2UserService;
 import com.takarabako.sharetube.auth.EntryPointUnauthorizedHandler;
+import com.takarabako.sharetube.model.common.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -27,11 +29,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private CustomOAuth2UserService customOAuth2UserService;
   private EntryPointUnauthorizedHandler entryPointUnauthorizedHandler;
   private CustomAccessDeniedHandler accessDeniedHandler;
+  private CustomOAuth2FailureHandler oAuth2FailureHandler;
 
-  public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, EntryPointUnauthorizedHandler entryPointUnauthorizedHandler, CustomAccessDeniedHandler accessDeniedHandler) {
+  public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, EntryPointUnauthorizedHandler entryPointUnauthorizedHandler,
+                        CustomAccessDeniedHandler accessDeniedHandler,
+                        CustomOAuth2FailureHandler oAuth2FailureHandler)
+  {
     this.customOAuth2UserService = customOAuth2UserService;
     this.accessDeniedHandler = accessDeniedHandler;
     this.entryPointUnauthorizedHandler = entryPointUnauthorizedHandler;
+    this.oAuth2FailureHandler = oAuth2FailureHandler;
   }
 
   @Bean
@@ -57,15 +64,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .disable()
             .headers()
               .disable()
-            .exceptionHandling()
-              .authenticationEntryPoint(entryPointUnauthorizedHandler)
-              .accessDeniedHandler(accessDeniedHandler)
-              .and()
+//            .exceptionHandling()
+//              .authenticationEntryPoint(entryPointUnauthorizedHandler)
+//              .accessDeniedHandler(accessDeniedHandler)
+//              .and()
             .sessionManagement()
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               .and()
             .authorizeRequests()
-              .antMatchers("/","/oauth2/**").permitAll()
+              .antMatchers("/","/login/**","/oauth2/**").permitAll()
+              .antMatchers("/list").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
               .accessDecisionManager(accessDecisionManager())
               .anyRequest().authenticated()
               .and()
@@ -76,9 +84,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .disable()
             .oauth2Login()
               .userInfoEndpoint()
-              .userService(customOAuth2UserService);
-
-
+              .userService(customOAuth2UserService)
+              .and()
+              .failureHandler(oAuth2FailureHandler);
   }
 
 }

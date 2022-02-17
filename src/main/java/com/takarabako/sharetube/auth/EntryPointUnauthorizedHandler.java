@@ -14,10 +14,6 @@ public class EntryPointUnauthorizedHandler implements AuthenticationEntryPoint {
 
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    response.setHeader("content-type", "application/json");
-    response.getWriter().write("Authentication error (cause: unauthorized)");
-    response.getWriter().flush();
-    response.getWriter().close();
+    response.sendRedirect("/login/oauth2/code/google");
   }
 }

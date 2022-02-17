@@ -8,10 +8,13 @@ import java.util.Map;
 
 public class  CustomOAuth2User implements OAuth2User {
 
-  private OAuth2User oAuth2User;
+  private final OAuth2User oAuth2User;
 
-  public CustomOAuth2User(OAuth2User oAuth2User) {
+  private boolean isNew;
+
+  public CustomOAuth2User(OAuth2User oAuth2User, boolean isNew) {
     this.oAuth2User = oAuth2User;
+    this.isNew = isNew;
   }
 
   @Override
@@ -35,5 +38,7 @@ public class  CustomOAuth2User implements OAuth2User {
   }
 
   public String getProfImg() { return oAuth2User.getAttribute("picture"); }
+
+  public boolean isNew() { return isNew; }
 
 }

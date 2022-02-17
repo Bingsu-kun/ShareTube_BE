@@ -1,17 +1,18 @@
 package com.takarabako.sharetube.model.users;
 
+import com.takarabako.sharetube.auth.jwt.Jwt;
 import com.takarabako.sharetube.model.common.Role;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -19,13 +20,13 @@ public class User {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
   @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
   @Column(name = "user_id")
-  private final Long userId;
+  private Long userId;
 
   @Column(name = "oauth2_id", unique = true, nullable = false)
-  private final String oAuth2Id;
+  private String oAuth2Id;
 
   @Column(unique = true, nullable = false)
-  private final String email;
+  private String email;
 
   @Column(nullable = false)
   private String nickname;
@@ -40,15 +41,6 @@ public class User {
     this(null, oAuth2Id, email, nickname, profileImgUrl, role);
   }
 
-  public User(Long userId, String oAuth2Id, String email, String nickname, String profileImgUrl, Role role) {
-    this.userId = userId;
-    this.oAuth2Id = oAuth2Id;
-    this.email = email;
-    this.nickname = nickname;
-    this.profileImgUrl = profileImgUrl;
-    this.role = role;
-  }
-
   public void setNickname(String nickname) {
     this.nickname = nickname;
   }
@@ -60,5 +52,7 @@ public class User {
   public void setRole(Role role) {
     this.role = role;
   }
+
+  public String newAccessToken(Jwt jwt, String[] roles) { return jwt.newAccessToken(Jwt.Claims.of(oAuth2Id,email,roles)); }
 
 }

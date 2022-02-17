@@ -16,14 +16,33 @@ public class UserService {
     this.userRepository = userRepository;
   }
 
+  // DB Access
+
+  @Transactional(readOnly = true)
+  public User findByOAuth2Id(String oAuth2Id) {
+    return userRepository.findByOAuth2Id(oAuth2Id).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 ID입니다. sub: " + oAuth2Id));
+  }
+
   @Transactional(readOnly = true)
   public User findByEmail(String email) {
-    return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("존재하지 않는 이메일입니다. : " + email));
+    return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("존재하지 않는 유저 이메일입니다. email: " + email));
+  }
+
+  @Transactional(readOnly = true)
+  public boolean existsByEmail(String email) {
+    return userRepository.existsByEmail(email);
   }
 
   @Transactional
-  public User save(User user){
-    return userRepository.save(user);
+  public void save(User user){
+    userRepository.save(user);
   }
+
+  @Transactional
+  public void update(User user) { userRepository.save(user); }
+
+  // Youtube API
+
+  // Youtube Api 이용해서 구독 목록 받아오는 로직
 
 }

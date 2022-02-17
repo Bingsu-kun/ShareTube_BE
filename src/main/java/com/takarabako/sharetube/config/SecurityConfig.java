@@ -1,22 +1,34 @@
 package com.takarabako.sharetube.config;
 
 import com.takarabako.sharetube.auth.CustomAccessDeniedHandler;
+import com.takarabako.sharetube.auth.jwt.Jwt;
+import com.takarabako.sharetube.auth.jwt.JwtAuthenticationProvider;
+import com.takarabako.sharetube.auth.jwt.JwtAuthenticationTokenFilter;
 import com.takarabako.sharetube.auth.oauth2.CustomOAuth2FailureHandler;
+import com.takarabako.sharetube.auth.oauth2.CustomOAuth2SuccessHandler;
 import com.takarabako.sharetube.auth.oauth2.CustomOAuth2UserService;
 import com.takarabako.sharetube.auth.EntryPointUnauthorizedHandler;
 import com.takarabako.sharetube.model.common.Role;
+import com.takarabako.sharetube.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Arrays;
@@ -26,19 +38,56 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  private CustomOAuth2UserService customOAuth2UserService;
-  private EntryPointUnauthorizedHandler entryPointUnauthorizedHandler;
-  private CustomAccessDeniedHandler accessDeniedHandler;
-  private CustomOAuth2FailureHandler oAuth2FailureHandler;
+  private final Jwt jwt;
+  private final JwtConfig jwtConfig;
+  private final CustomOAuth2UserService customOAuth2UserService;
+  private final EntryPointUnauthorizedHandler entryPointUnauthorizedHandler;
+  private final CustomAccessDeniedHandler accessDeniedHandler;
+  private final CustomOAuth2SuccessHandler oAuth2SuccessHandler;
+  private final CustomOAuth2FailureHandler oAuth2FailureHandler;
+  private final StringRedisTemplate stringRedisTemplate;
 
-  public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, EntryPointUnauthorizedHandler entryPointUnauthorizedHandler,
-                        CustomAccessDeniedHandler accessDeniedHandler,
-                        CustomOAuth2FailureHandler oAuth2FailureHandler)
-  {
+  public SecurityConfig(Jwt jwt, JwtConfig jwtConfig, CustomOAuth2UserService customOAuth2UserService,
+                        EntryPointUnauthorizedHandler entryPointUnauthorizedHandler,
+                        CustomAccessDeniedHandler accessDeniedHandler, CustomOAuth2SuccessHandler oAuth2SuccessHandler,
+                        CustomOAuth2FailureHandler oAuth2FailureHandler, StringRedisTemplate stringRedisTemplate) {
+    this.jwt = jwt;
+    this.jwtConfig = jwtConfig;
     this.customOAuth2UserService = customOAuth2UserService;
-    this.accessDeniedHandler = accessDeniedHandler;
     this.entryPointUnauthorizedHandler = entryPointUnauthorizedHandler;
+    this.accessDeniedHandler = accessDeniedHandler;
+    this.oAuth2SuccessHandler = oAuth2SuccessHandler;
     this.oAuth2FailureHandler = oAuth2FailureHandler;
+    this.stringRedisTemplate = stringRedisTemplate;
+  }
+
+  @Bean
+  public JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter() {
+    return new JwtAuthenticationTokenFilter(jwtConfig.getHeader(), jwt, stringRedisTemplate);
+  }
+
+  //접근 보안
+  @Override
+  public void configure(WebSecurity web) {
+    web.ignoring().antMatchers("/static/**","/templates/**");
+  }
+
+  @Bean
+  public JwtAuthenticationProvider jwtAuthenticationProvider(Jwt jwt, UserService userService) {
+    return new JwtAuthenticationProvider(jwt, userService);
+  }
+
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
+
+  @Autowired
+  public void configureAuthentication(AuthenticationManagerBuilder builder, @Lazy JwtAuthenticationProvider authenticationProvider) {
+    // JwtAuthenticationProvider 순환 참조로 인해 @Lazy 어노테이션 추가. 임시 방편이므로 추후 자세히 조사해서 구조 파악 후 수정 요망.
+    // 기존에 있던 Manager 목록에 jwt를 위한 새로운 Manager 추가
+    builder.authenticationProvider(authenticationProvider);
   }
 
   @Bean
@@ -64,18 +113,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .disable()
             .headers()
               .disable()
-//            .exceptionHandling()
-//              .authenticationEntryPoint(entryPointUnauthorizedHandler)
-//              .accessDeniedHandler(accessDeniedHandler)
-//              .and()
+            .exceptionHandling()
+              .authenticationEntryPoint(entryPointUnauthorizedHandler)
+              .accessDeniedHandler(accessDeniedHandler)
+              .and()
             .sessionManagement()
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               .and()
             .authorizeRequests()
               .antMatchers("/","/login/**","/oauth2/**").permitAll()
-              .antMatchers("/list").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
+              .antMatchers("/authcheck").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
               .accessDecisionManager(accessDecisionManager())
-              .anyRequest().authenticated()
+              .anyRequest().permitAll()
               .and()
             .logout()
               .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
@@ -86,7 +135,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .userInfoEndpoint()
               .userService(customOAuth2UserService)
               .and()
-              .failureHandler(oAuth2FailureHandler);
+              .successHandler(oAuth2SuccessHandler)
+              .failureHandler(oAuth2FailureHandler)
+              .and()
+            .addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
   }
 
 }

@@ -7,10 +7,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+      dialect: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         format_sql: true
     show-sql: true
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
   security:
     oauth2:
       client:
@@ -25,4 +34,13 @@ spring:
 
 server:
   port: 8080
+  error:
+    whitelabel:
+      enabled: false
 
+jwt:
+  token:
+    header: Authorization
+    issuer: ShareTube
+    clientSecret: DD08B39A2323170BA2BC68A5888463F4BD875B8A4638F8B17A9CA9B8E1496D0679CB6266DCD96B3CD812FF3C9EDD6E84520507E5A0F51F53F9220BC23B275817
+    expirySeconds: 3600

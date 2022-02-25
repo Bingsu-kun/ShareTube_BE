@@ -1,9 +1,9 @@
 spring:
   dataSource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://3.34.252.182:5432/sharetube
     username: postgres
-    password: 1018
+    password: dlduwls0822!
   jpa:
     hibernate:
       ddl-auto: create
@@ -15,7 +15,7 @@ spring:
   cache:
     type: redis
   redis:
-    host: localhost
+    host: 3.34.252.182
     port: 6379
   messages:
     basename: messages/messages

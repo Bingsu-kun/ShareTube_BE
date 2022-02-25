@@ -17,7 +17,7 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
 
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setHeader("content-type", "application/json");
-    response.getWriter().write("Authentication error (cause: OAuth2 authentication failed)" + exception);
+    response.getWriter().write("{\"success\" : \"false\", \"response\" : null, \"error\" : {\"message\" : \"Authentication error (cause: OAuth2 authentication failed)" + exception + "\", \"code\" : 401}}");
     response.getWriter().flush();
     response.getWriter().close();
 

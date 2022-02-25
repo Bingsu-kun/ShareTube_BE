@@ -41,7 +41,7 @@ public class AuthController {
   @GetMapping(path = "/login")
   public void login(HttpServletResponse response) {
     try {
-      response.sendRedirect("http://localhost:8080/oauth2/authorization/google");
+      response.sendRedirect("https://sharetube-be.herokuapp.com/oauth2/authorization/google");
     } catch (IOException e) {
       e.printStackTrace();
     }

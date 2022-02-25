@@ -19,7 +19,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
 
-    response.sendRedirect("/oauth2/result/"+user.getId()+"?isNew="+user.isNew());
+    response.sendRedirect("/auth/result/"+user.getId()+"?isNew="+user.isNew());
 
   }
 }

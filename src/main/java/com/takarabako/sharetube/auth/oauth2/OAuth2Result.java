@@ -5,6 +5,8 @@ import com.takarabako.sharetube.model.common.ApiError;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.HashMap;
+
 @ToString
 @Getter
 public class OAuth2Result {
@@ -13,9 +15,15 @@ public class OAuth2Result {
 
   private final UserDto user;
 
+  private final HashMap<String,Object> youtubeSubs;
+
   private Boolean isNew;
 
-  public OAuth2Result(String accessToken, UserDto user, Boolean isNew) {
+  public OAuth2Result(String accessToken, UserDto user) {
+    this(accessToken,user,null,false);
+  }
+
+  public OAuth2Result(String accessToken, UserDto user, HashMap<String,Object> youtubeSubs, Boolean isNew) {
     if (accessToken == null)
       throw new IllegalArgumentException("accessToken must be provided");
     else if (user == null)
@@ -23,6 +31,7 @@ public class OAuth2Result {
 
     this.accessToken = accessToken;
     this.user = user;
+    this.youtubeSubs = youtubeSubs;
     this.isNew = isNew;
   }
 

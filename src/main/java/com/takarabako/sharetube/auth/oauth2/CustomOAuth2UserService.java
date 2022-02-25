@@ -34,8 +34,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     OAuth2User oAuth2User = super.loadUser(userRequest);
     boolean isExist = userService.existsByEmail(oAuth2User.getAttribute("email"));
 
-    log.info(String.valueOf(isExist));
-
     CustomOAuth2User user = new CustomOAuth2User(oAuth2User, !isExist);
 
     // 존재하는 유저의 정보로 OAuth2AuthenticationToken을 제작하여 SecurityContextHolder에 set.
@@ -46,7 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     // 토큰을 redis에 저장,
     Date expire = new Date(new Date().getTime() + 3600 * 1_000L);
     stringRedisTemplate.opsForValue().set(user.getId(), userRequest.getAccessToken().getTokenValue(), expire.getTime(), TimeUnit.MILLISECONDS);
-
+    log.info(oAuth2User.getAttributes().toString());
     if (isExist) {
       // 유저가 존재할 경우 업데이트.
       User savedUser = userService.findByEmail(user.getEmail());

@@ -1,9 +1,9 @@
 spring:
   dataSource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: 1018
+    url: jdbc:postgres://nwdpdmamchcbla:0dddb79cc9139d191b97c936a3648e169562d5c7c22780212025a9b7c35bf845@ec2-3-227-195-74.compute-1.amazonaws.com:5432/d89dd16c5v7ud0
+    username: nwdpdmamchcbla
+    password: 0dddb79cc9139d191b97c936a3648e169562d5c7c22780212025a9b7c35bf845
   jpa:
     hibernate:
       ddl-auto: create
@@ -31,6 +31,7 @@ spring:
             scope:
               - profile
               - email
+              - https://www.googleapis.com/auth/youtubepartner
 
 server:
   port: 8080
@@ -44,3 +45,6 @@ jwt:
     issuer: ShareTube
     clientSecret: DD08B39A2323170BA2BC68A5888463F4BD875B8A4638F8B17A9CA9B8E1496D0679CB6266DCD96B3CD812FF3C9EDD6E84520507E5A0F51F53F9220BC23B275817
     expirySeconds: 3600
+
+youtube:
+  key: AIzaSyAG5CtIFNO1Lb_Sq0wL8ald6O37no69BYE

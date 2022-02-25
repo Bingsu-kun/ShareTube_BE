@@ -17,13 +17,14 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.takarabako.sharetube.model.common.ApiResult.OK;
 import static com.takarabako.sharetube.model.common.ApiResult.ERROR;
 
 @RestController
-@RequestMapping(path = "/oauth2")
+@RequestMapping(path = "/auth")
 @Slf4j
 public class AuthController {
 
@@ -40,7 +41,7 @@ public class AuthController {
   @GetMapping(path = "/login")
   public void login(HttpServletResponse response) {
     try {
-      response.sendRedirect("http://localhost:8080/login/oauth2/code/google");
+      response.sendRedirect("http://localhost:8080/oauth2/authorization/google");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -51,8 +52,9 @@ public class AuthController {
 
     User user = userService.findByOAuth2Id(userId);
     String accessToken = user.newAccessToken(jwt,new String[]{ user.getRole().name() });
+    HashMap<String,Object> youtubeSubs = userService.getSubscriptions(userId);
 
-    return OK(new OAuth2Result(accessToken,new UserDto(user), isNew));
+    return OK(new OAuth2Result(accessToken, new UserDto(user), youtubeSubs, isNew));
   }
 
   @GetMapping(path = "/logout")

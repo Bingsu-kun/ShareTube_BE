@@ -1,7 +1,9 @@
 package com.takarabako.sharetube.util;
 
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MessageUtils {
 
   private static MessageSourceAccessor messageSourceAccessor;

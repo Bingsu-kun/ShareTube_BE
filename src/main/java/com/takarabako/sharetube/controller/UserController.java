@@ -5,8 +5,12 @@ import com.takarabako.sharetube.auth.jwt.JwtAuthentication;
 import com.takarabako.sharetube.error.NotFoundException;
 import com.takarabako.sharetube.error.UnAuthorizedException;
 import com.takarabako.sharetube.model.common.ApiResult;
+import com.takarabako.sharetube.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 
 import static com.takarabako.sharetube.model.common.ApiResult.OK;
 import static com.takarabako.sharetube.model.common.ApiResult.ERROR;
@@ -15,15 +19,16 @@ import static com.takarabako.sharetube.model.common.ApiResult.ERROR;
 @RequestMapping(path = "/api")
 public class UserController {
 
-  @GetMapping(path = "/hcheck")
-  public ApiResult<String> hcheck() {
-    return OK("ShareTube_BE server is Running!");
+  private final UserService userService;
+
+  public UserController(UserService userService) {
+    this.userService = userService;
   }
 
-  @GetMapping(path = "/authcheck")
-  public ApiResult<String> authcheck(@AuthenticationPrincipal JwtAuthentication authentication) {
+  @GetMapping(path = "/subscriptions")
+  public ApiResult<HashMap<String,Object>> getSubscriptions(@AuthenticationPrincipal JwtAuthentication authentication) {
     try {
-      return OK("auth pass :)" + authentication.userId);
+      return OK( userService.getSubscriptions(authentication.userId) );
     } catch (NotFoundException e) {
       return ERROR(new NotFoundException(e.getMessage()),404);
     } catch (UnAuthorizedException e) {

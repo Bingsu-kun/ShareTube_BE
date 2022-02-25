@@ -42,7 +42,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
       JwtAuthenticationToken authenticatedToken =
               new JwtAuthenticationToken(new JwtAuthentication(user.getOAuth2Id(),user.getEmail()),null,createAuthorityList(user.getRole().name()));
       String accessToken = user.newAccessToken(jwt, new String[]{ user.getRole().name() });
-      authenticatedToken.setDetails(new OAuth2Result(accessToken,new UserDto(user),false));
+      authenticatedToken.setDetails(new OAuth2Result(accessToken,new UserDto(user)));
       return authenticatedToken;
     } catch (NotFoundException e) {
       throw new UsernameNotFoundException(e.getMessage());

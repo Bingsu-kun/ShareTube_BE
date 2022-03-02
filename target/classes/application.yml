@@ -1,9 +1,15 @@
+jasypt:
+  encryptor:
+    password: you shall not pass
 spring:
   dataSource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://3.34.252.182:5432/sharetube
+#    url: jdbc:postgresql://3.34.252.182:5432/sharetube
+#    username: postgres
+#    password: dlduwls0822!
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: dlduwls0822!
+    password: 1018
   jpa:
     hibernate:
       ddl-auto: create
@@ -15,7 +21,8 @@ spring:
   cache:
     type: redis
   redis:
-    host: 3.34.252.182
+#    host: 3.34.252.182
+    host: localhost
     port: 6379
   messages:
     basename: messages/messages
@@ -26,7 +33,7 @@ spring:
         registration:
           google:
             client-id: 427478828214-4ee1v120n6d89vo01tka49k52uisos5n.apps.googleusercontent.com
-            client-secret: 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
+            client-secret: ENC(a0z5Z8cn+ZFlyGPL4e1vzdP7O1M8duFamGKBp/kVdXtneRi9YFmTLLgwD0qS8vBfzo19TFcQYfMJi7zUOrUNKWYBxwtlfoSEtw7ABE3pJ3I=) #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
             authorization-grant-type: authorization_code
             scope:
               - profile
@@ -43,8 +50,8 @@ jwt:
   token:
     header: Authorization
     issuer: ShareTube
-    clientSecret: DD08B39A2323170BA2BC68A5888463F4BD875B8A4638F8B17A9CA9B8E1496D0679CB6266DCD96B3CD812FF3C9EDD6E84520507E5A0F51F53F9220BC23B275817
+    clientSecret: ENC(ZgACQglU4nh1H7fEy7rXpJoV6PZnXklQRqE8WZrsPKYFl+tvAx5H0VZ2e7SNQ52KPtHt/oRUO9CBWBWvIINiHB4A6AvJN34LaOdNkaYfr+SDJ/CQXckfMII7h6f11Na8NVUTlngM5sSLpYkJn/ofNz3kpHH26AqSXqx7QcdRO6E4qFy7wIjJbEnbq7RzWat6OOZSnWqC2r6VPxxu/cV05tQOEr3xqZb1ih2LDuyTF2g=) #DD08B39A2323170BA2BC68A5888463F4BD875B8A4638F8B17A9CA9B8E1496D0679CB6266DCD96B3CD812FF3C9EDD6E84520507E5A0F51F53F9220BC23B275817
     expirySeconds: 3600
 
 youtube:
-  key: AIzaSyAG5CtIFNO1Lb_Sq0wL8ald6O37no69BYE
+  key: ENC(ebLSvvT+LSa7d1yALUi/moyEhsj5zWhQg48OS/H98fAAd5mhIpDLO48I3eA1dIpMdbbrYXWmo8HT8AzuTRCQGmByzAW1YTF7SwqINeQTZLw=) #AIzaSyAG5CtIFNO1Lb_Sq0wL8ald6O37no69BYE

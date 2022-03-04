@@ -19,7 +19,8 @@ public class AuthCorsFilter implements Filter {
   {
     HttpServletResponse response = (HttpServletResponse) res;
     HttpServletRequest request = (HttpServletRequest) req;
-    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Origin", "localhost:8080");
+    response.setHeader("Access-Control-Allow-Origin", "localhost:3000");
     response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Access-Control-Allow-Methods","*");
     response.setHeader("Access-Control-Max-Age", "3600");

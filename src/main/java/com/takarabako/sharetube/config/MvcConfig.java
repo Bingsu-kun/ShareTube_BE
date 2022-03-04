@@ -17,6 +17,13 @@ public class MvcConfig implements WebMvcConfigurer {
             .allowCredentials(true)
             .maxAge(3600);
     registry
+            .addMapping("/login/oauth2/code/google/**")
+            .allowedOrigins("*") // 모든 origin 허용. 추후 프론트 origin에 따라 설정 필요.
+            .allowedMethods("*")
+            .exposedHeaders("*","authorization")
+            .allowCredentials(true)
+            .maxAge(3600);
+    registry
             .addMapping("/api/**")
             .allowedOrigins("*") // 모든 origin 허용. 추후 프론트 origin에 따라 설정 필요.
             .allowedMethods("*")

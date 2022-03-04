@@ -1,5 +1,6 @@
 package com.takarabako.sharetube.auth.oauth2;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -9,9 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class AuthCorsFilter implements Filter {
 
   @Override
@@ -20,12 +23,7 @@ public class AuthCorsFilter implements Filter {
   {
     HttpServletResponse response = (HttpServletResponse) res;
     HttpServletRequest request = (HttpServletRequest) req;
-    String origin = request.getHeader("Origin");
-    String[] allowOrigins = {"localhost:8080, localhost:3000"};
-    Arrays.stream(allowOrigins).forEach((allowedOrigin) -> {
-      if (allowedOrigin.equals(origin))
-        response.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-    });
+    response.setHeader("Access-Control-Allow-Origin", "localhost:3000");
     response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Access-Control-Allow-Methods","*");
     response.setHeader("Access-Control-Max-Age", "3600");

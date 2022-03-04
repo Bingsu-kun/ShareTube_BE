@@ -30,6 +30,9 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -105,12 +108,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return new AffirmativeBased(voters);
   }
 
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    configuration.addAllowedOrigin("*");
+    configuration.addAllowedHeader("*");
+    configuration.addAllowedHeader("Authorization");
+    configuration.addAllowedMethod("*");
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", configuration);
+    source.registerCorsConfiguration("/auth/**", configuration);
+    source.registerCorsConfiguration("/login/oauth2/**", configuration);
+
+    return source;
+  }
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
 
     http.
             csrf()
               .disable()
+            .cors()
+              .configurationSource(corsConfigurationSource())
+              .and()
             .headers()
               .disable()
             .exceptionHandling()
@@ -121,8 +145,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               .and()
             .authorizeRequests()
-              .antMatchers("/","/login/**","/oauth2/**").permitAll()
-              .antMatchers("/authcheck").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
+              .antMatchers("/","/login/**","/auth/**").permitAll()
+              .antMatchers("/api/**").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
               .accessDecisionManager(accessDecisionManager())
               .anyRequest().permitAll()
               .and()

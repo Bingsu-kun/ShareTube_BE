@@ -10,12 +10,20 @@ public class MvcConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry
+            .addMapping("/auth/**")
+            .allowedOrigins("*") // 모든 origin 허용. 추후 프론트 origin에 따라 설정 필요.
+            .allowedMethods("*")
+            .exposedHeaders("*","authorization")
+            .allowCredentials(true)
+            .maxAge(3600);
+    registry
             .addMapping("/api/**")
             .allowedOrigins("*") // 모든 origin 허용. 추후 프론트 origin에 따라 설정 필요.
             .allowedMethods("*")
             .exposedHeaders("*","authorization")
+            .allowCredentials(true)
             .maxAge(3600);
-    //           .allowCredentials(true); 쿠키 사용시 추가.
+
   }
 
 }

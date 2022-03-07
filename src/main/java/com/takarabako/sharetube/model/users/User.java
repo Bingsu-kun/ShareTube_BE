@@ -2,9 +2,12 @@ package com.takarabako.sharetube.model.users;
 
 import com.takarabako.sharetube.auth.jwt.Jwt;
 import com.takarabako.sharetube.model.common.Role;
+import com.takarabako.sharetube.model.lists.ShareList;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,12 +20,7 @@ import javax.persistence.*;
 public class User {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
-  @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
-  @Column(name = "user_id")
-  private Long userId;
-
-  @Column(name = "oauth2_id", unique = true, nullable = false)
+  @Column(name = "oauth2_id")
   private String oAuth2Id;
 
   @Column(unique = true, nullable = false)
@@ -37,8 +35,15 @@ public class User {
   @Column(nullable = false)
   private Role role;
 
+  @OneToMany(mappedBy = "author")
+  private List<ShareList> myLists;
+
+  @OneToMany
+  @JoinColumn(name = "lists_id")
+  private List<ShareList> subscribing;
+
   public User(String oAuth2Id, String email, String nickname, String profileImgUrl, Role role) {
-    this(null, oAuth2Id, email, nickname, profileImgUrl, role);
+    this(oAuth2Id, email, nickname, profileImgUrl, role, new ArrayList<ShareList>(), new ArrayList<ShareList>());
   }
 
   public void setNickname(String nickname) {

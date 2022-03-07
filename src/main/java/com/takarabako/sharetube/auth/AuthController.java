@@ -3,6 +3,7 @@ package com.takarabako.sharetube.auth;
 import com.takarabako.sharetube.auth.jwt.Jwt;
 import com.takarabako.sharetube.auth.oauth2.OAuth2Result;
 import com.takarabako.sharetube.controller.UserDto;
+import com.takarabako.sharetube.error.UnAuthorizedException;
 import com.takarabako.sharetube.model.common.ApiResult;
 import com.takarabako.sharetube.model.users.User;
 import com.takarabako.sharetube.service.UserService;
@@ -10,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -48,13 +51,13 @@ public class AuthController {
   }
 
   @GetMapping(path = "/result/{userId}")
-  public ApiResult<OAuth2Result> authResult(@PathVariable("userId") String userId, @RequestParam("isNew") Boolean isNew) {
+  public ApiResult<OAuth2Result> authResult(@PathVariable(name = "userId") String userId) {
 
     User user = userService.findByOAuth2Id(userId);
     String accessToken = user.newAccessToken(jwt,new String[]{ user.getRole().name() });
     HashMap<String,Object> youtubeSubs = userService.getSubscriptions(userId);
 
-    return OK(new OAuth2Result(accessToken, new UserDto(user), youtubeSubs, isNew));
+    return OK(new OAuth2Result(accessToken, new UserDto(user), youtubeSubs));
   }
 
   @GetMapping(path = "/logout")

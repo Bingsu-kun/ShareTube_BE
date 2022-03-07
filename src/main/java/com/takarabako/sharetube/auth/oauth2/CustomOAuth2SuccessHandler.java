@@ -6,6 +6,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
 
-    response.sendRedirect("/auth/result/"+user.getId()+"?isNew="+user.isNew());
+    response.sendRedirect("http://localhost:3000/login/callback?id="+user.getId()+"&new="+user.isNew());
 
   }
 }

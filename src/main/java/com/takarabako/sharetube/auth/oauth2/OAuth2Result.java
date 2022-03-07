@@ -17,13 +17,11 @@ public class OAuth2Result {
 
   private final HashMap<String,Object> youtubeSubs;
 
-  private Boolean isNew;
-
   public OAuth2Result(String accessToken, UserDto user) {
-    this(accessToken,user,null,false);
+    this(accessToken,user,null);
   }
 
-  public OAuth2Result(String accessToken, UserDto user, HashMap<String,Object> youtubeSubs, Boolean isNew) {
+  public OAuth2Result(String accessToken, UserDto user, HashMap<String,Object> youtubeSubs) {
     if (accessToken == null)
       throw new IllegalArgumentException("accessToken must be provided");
     else if (user == null)
@@ -32,10 +30,6 @@ public class OAuth2Result {
     this.accessToken = accessToken;
     this.user = user;
     this.youtubeSubs = youtubeSubs;
-    this.isNew = isNew;
   }
 
-  public void setIsNew(boolean isNew) {
-    this.isNew = isNew;
-  }
 }

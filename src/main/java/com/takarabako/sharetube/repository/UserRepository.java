@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
   @Query(value = "SELECT * FROM users WHERE oauth2_id = :oauth2_id", nativeQuery = true)
   Optional<User> findByOAuth2Id(@Param(value = "oauth2_id") String oAuth2Id);

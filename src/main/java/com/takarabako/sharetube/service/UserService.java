@@ -5,7 +5,6 @@ import com.takarabako.sharetube.model.users.User;
 import com.takarabako.sharetube.repository.UserRepository;
 import com.takarabako.sharetube.util.RedisUtils;
 import com.takarabako.sharetube.util.YoutubeUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +56,13 @@ public class UserService {
     // 이 과정에서 Redis에 토큰이 존재하지 않을 시 유효기간이 만료되어 사라진 것 이므로 RedisUtils에서 AccessTokenExpiredException을 뱉습니다.
     String accessToken = redisUtils.getAccessToken(userId);
 
-    return youtubeUtils.getSubscriptions(userId,accessToken);
+    return youtubeUtils.getSubscriptions(accessToken);
+  }
+
+  public HashMap<String, Object> getTop10Subs(String userId) {
+    String accessToken = redisUtils.getAccessToken(userId);
+
+    return youtubeUtils.getTop10Subs(accessToken);
   }
 
 }

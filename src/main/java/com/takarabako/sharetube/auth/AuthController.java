@@ -55,7 +55,7 @@ public class AuthController {
 
     User user = userService.findByOAuth2Id(userId);
     String accessToken = user.newAccessToken(jwt,new String[]{ user.getRole().name() });
-    HashMap<String,Object> youtubeSubs = userService.getSubscriptions(userId);
+    HashMap<String,Object> youtubeSubs = userService.getTop10Subs(userId);
 
     return OK(new OAuth2Result(accessToken, new UserDto(user), youtubeSubs));
   }

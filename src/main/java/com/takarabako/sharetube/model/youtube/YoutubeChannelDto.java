@@ -7,10 +7,8 @@ import lombok.ToString;
 @ToString
 public class YoutubeChannelDto {
 
-  private String kind;
-  private String etag;
   private String id;
   private YoutubeSnippetDto snippet;
-  private YoutubeContentDetailsDto  contentDetails;
+  private YoutubeStatisticsDto statistics;
 
 }

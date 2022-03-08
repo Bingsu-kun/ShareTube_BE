@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @Getter
 @ToString
@@ -12,8 +13,9 @@ public class YoutubeSnippetDto {
   private Date publishedAt;
   private String title;
   private String description;
-  private Object resourceId;
+  private String customUrl;
+  private YoutubeResourceIdDto resourceId;
   private String channelId;
-  private Object thumbnails;
+  private HashMap<String, Object> thumbnails;
 
 }

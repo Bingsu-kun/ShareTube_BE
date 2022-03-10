@@ -1,15 +1,17 @@
 package com.takarabako.sharetube.service;
 
+import com.takarabako.sharetube.controller.shareList.ShareListResponseDto;
 import com.takarabako.sharetube.error.UnAuthorizedException;
 import com.takarabako.sharetube.model.lists.ShareList;
 import com.takarabako.sharetube.model.users.User;
 import com.takarabako.sharetube.model.youtube.ChannelDto;
-import com.takarabako.sharetube.model.youtube.YoutubeChannelDto;
 import com.takarabako.sharetube.repository.ShareListRepository;
 import com.takarabako.sharetube.repository.UserRepository;
+import com.takarabako.sharetube.util.YoutubeUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,31 +20,60 @@ public class ShareListService {
 
   private final ShareListRepository shareListRepository;
   private final UserRepository userRepository;
+  private final YoutubeUtils youtubeUtils;
 
-  public ShareListService(ShareListRepository shareListRepository, UserRepository userRepository) {
+  public ShareListService(ShareListRepository shareListRepository, UserRepository userRepository, YoutubeUtils youtubeUtils) {
     this.shareListRepository = shareListRepository;
     this.userRepository = userRepository;
+    this.youtubeUtils = youtubeUtils;
   }
 
   @Transactional
   public ShareList create(String userId, String listTitle, List<ChannelDto> channels) {
     User author = userRepository.getById(userId);
     String channelIds = createIdString(channels);
+    String thumbnail = "Temp";
 
-    ShareList shareList = new ShareList(author,listTitle,channelIds);
+    ShareList shareList = new ShareList(author,thumbnail,listTitle,channelIds);
     shareListRepository.save(shareList);
 
     return shareList;
   }
 
   @Transactional
-  public ShareList getList(UUID id) {
+  public ShareListResponseDto getSimpleList(UUID id) {
     ShareList list = shareListRepository.getById(id);
-    list.addViews();
+    int channels = list.getChannelIds().split(",").length;
 
-    // TODO - 채널 저자 id, 저자 닉네임, 타이틀, 구독자, 채널목록(ChannelDto), 조회수를 Dto로 만들어야함.
+    return ShareListResponseDto.SIMPLE(list.getId(),list.getAuthor().getOAuth2Id(),list.getAuthor().getNickname(),
+            list.getTitle(),list.getThumbnail(),list.getViews(),channels);
+  }
 
-    return list;
+  @Transactional
+  public ShareListResponseDto getDetailList(String oauth2Id, UUID id) {
+    ShareList list = shareListRepository.getById(id);
+    if (!list.getAuthor().getOAuth2Id().equals(oauth2Id))
+      list.addViews();
+    String[] channels = list.getChannelIds().split(",");
+    StringBuilder channelIds = new StringBuilder();
+
+    List<ChannelDto> channelList = new ArrayList<>();
+
+    for (int count = 0; count < channels.length; count++) {
+      if (channelIds.toString().equals("")) {
+        channelIds.append(channels[count]);
+      } else {
+        channelIds.append(",").append(channels[count]);
+      }
+
+      if ((count+1) % 50 == 0) {
+        channelList.addAll(youtubeUtils.getChannelsDetails(channelIds.toString()));
+        channelIds = new StringBuilder();
+      }
+    }
+
+    return ShareListResponseDto.DETAIL(list.getId(),list.getAuthor().getOAuth2Id(),list.getAuthor().getNickname(),
+            list.getTitle(),list.getThumbnail(),list.getViews(),channelList);
   }
 
   @Transactional

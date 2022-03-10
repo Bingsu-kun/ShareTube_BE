@@ -1,7 +1,6 @@
 package com.takarabako.sharetube.auth.oauth2;
 
-import com.takarabako.sharetube.controller.UserDto;
-import com.takarabako.sharetube.model.common.ApiError;
+import com.takarabako.sharetube.controller.user.UserDto;
 import lombok.Getter;
 import lombok.ToString;
 

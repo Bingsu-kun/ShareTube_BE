@@ -1,7 +1,7 @@
 package com.takarabako.sharetube.auth.jwt;
 
 import com.takarabako.sharetube.auth.oauth2.OAuth2Result;
-import com.takarabako.sharetube.controller.UserDto;
+import com.takarabako.sharetube.controller.user.UserDto;
 import com.takarabako.sharetube.error.NotFoundException;
 import com.takarabako.sharetube.model.users.User;
 import com.takarabako.sharetube.service.UserService;

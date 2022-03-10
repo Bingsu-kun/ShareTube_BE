@@ -69,7 +69,7 @@ public class YoutubeUtils {
         repeatCount = 19;
 
       String id = createIdString(responseBody.getItems());
-      items.addAll(getChannelsDetails(id,accessToken));
+      items.addAll(getChannelsDetails(id));
 
       requestUrl = "https://www.googleapis.com/youtube/v3/subscriptions?" +
               "part=snippet&mine=true&maxResults=50&pageToken="+nextPageToken+"&key="+apiKey;
@@ -78,7 +78,7 @@ public class YoutubeUtils {
         responseBody = om.readValue(rt.exchange(requestUrl, HttpMethod.GET, entity, String.class).getBody(), YoutubeSubscriptionResponseDto.class);
         nextPageToken = responseBody.getNextPageToken();
         id = createIdString(responseBody.getItems());
-        items.addAll(getChannelsDetails(id,accessToken));
+        items.addAll(getChannelsDetails(id));
         requestUrl = "https://www.googleapis.com/youtube/v3/subscriptions?" +
                 "part=snippet&mine=true&maxResults=50&pageToken="+nextPageToken+"&key="+apiKey;
       }
@@ -112,7 +112,7 @@ public class YoutubeUtils {
     try {
       responseBody = om.readValue(rt.exchange(requestUrl, HttpMethod.GET, entity, String.class).getBody(), YoutubeSubscriptionResponseDto.class);
       String id = createIdString(responseBody.getItems());
-      items.addAll(getChannelsDetails(id,accessToken));
+      items.addAll(getChannelsDetails(id));
     } catch (JsonProcessingException e) {
       throw new JsonParseException("json 데이터를 파싱하는 중 에러가 발생했습니다. cause : " + e.getMessage());
     } catch (Exception e) {
@@ -127,11 +127,10 @@ public class YoutubeUtils {
     return response;
   }
 
-  public List<ChannelDto> getChannelsDetails(String channelIds, String accessToken) {
+  public List<ChannelDto> getChannelsDetails(String channelIds) {
     List<ChannelDto> channels = new ArrayList<>();
 
     HttpHeaders headers = new HttpHeaders();
-    headers.add("Authorization","Bearer "+accessToken);
 
     HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(headers);
 

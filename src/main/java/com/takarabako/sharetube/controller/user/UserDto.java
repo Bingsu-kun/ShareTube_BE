@@ -1,4 +1,4 @@
-package com.takarabako.sharetube.controller;
+package com.takarabako.sharetube.controller.user;
 
 import com.takarabako.sharetube.model.users.User;
 import lombok.Getter;

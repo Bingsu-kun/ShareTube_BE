@@ -1,4 +1,4 @@
-package com.takarabako.sharetube.controller;
+package com.takarabako.sharetube.controller.user;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.takarabako.sharetube.auth.jwt.JwtAuthentication;

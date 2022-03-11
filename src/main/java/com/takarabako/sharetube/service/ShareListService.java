@@ -29,12 +29,11 @@ public class ShareListService {
   }
 
   @Transactional
-  public ShareList create(String userId, String listTitle, List<ChannelDto> channels) {
+  public ShareList create(String userId, String thumbnail, String listTitle, String description, List<String> channels) {
     User author = userRepository.getById(userId);
     String channelIds = createIdString(channels);
-    String thumbnail = "Temp";
 
-    ShareList shareList = new ShareList(author,thumbnail,listTitle,channelIds);
+    ShareList shareList = new ShareList(author,thumbnail,listTitle,description,channelIds);
     shareListRepository.save(shareList);
 
     return shareList;
@@ -78,15 +77,17 @@ public class ShareListService {
   }
 
   @Transactional
-  public ShareList update(String oAuth2Id, UUID id, String listTitle, List<ChannelDto> channels) {
+  public ShareList update(String oAuth2Id, UUID id, String thumbnail, String listTitle, String description, List<String> channels) {
 
     ShareList list = shareListRepository.getById(id);
 
     if (!oAuth2Id.equals(list.getAuthor().getOAuth2Id()))
       throw new UnAuthorizedException("접속한 유저와 list의 저자가 다릅니다.");
 
+    list.setThumbnail(thumbnail);
     list.setTitle(listTitle);
     list.setChannelIds(createIdString(channels));
+    list.setDescription(description);
     shareListRepository.save(list);
 
     return list;
@@ -116,10 +117,12 @@ public class ShareListService {
     ShareList list = shareListRepository.getById(id);
     User user = userRepository.getById(oAuth2Id);
 
-    if (list.getSubscriber().contains(user))
+    if (user.getSubscribing().contains(list))
       throw new IllegalArgumentException("이미 구독 중입니다.");
     else {
+      user.addSubList(list);
       list.addSubscriber(user);
+      userRepository.save(user);
       shareListRepository.save(list);
     }
 
@@ -132,25 +135,27 @@ public class ShareListService {
     ShareList list = shareListRepository.getById(id);
     User user = userRepository.getById(oAuth2Id);
 
-    if (!list.getSubscriber().contains(user))
+    if (!user.getSubscribing().contains(list))
       throw new IllegalArgumentException("구독 목록에 존재하지 않습니다.");
     else {
+      user.removeSubList(list);
       list.removeSubscriber(user);
+      userRepository.save(user);
       shareListRepository.save(list);
     }
 
     return true;
   }
 
-  private String createIdString(List<ChannelDto> channels) {
+  private String createIdString(List<String> channels) {
 
     StringBuilder channelIds = new StringBuilder();
 
-    for (ChannelDto channel : channels) {
+    for (String channel : channels) {
       if (channelIds.toString().equals("")) {
-        channelIds.append(channel.getId());
+        channelIds.append(channel);
       } else {
-        channelIds.append(",").append(channel.getId());
+        channelIds.append(",").append(channel);
       }
     }
 

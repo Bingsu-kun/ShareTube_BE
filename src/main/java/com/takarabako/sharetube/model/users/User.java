@@ -45,7 +45,7 @@ public class User {
   private int lastTotal;
 
   public User(String oAuth2Id, String email, String nickname, String profileImgUrl, Role role) {
-    this(oAuth2Id, email, nickname, profileImgUrl, role, new ArrayList<ShareList>(), new ArrayList<ShareList>(), 0);
+    this(oAuth2Id, email, nickname, profileImgUrl, role, new ArrayList<>(), new ArrayList<>(), 0);
   }
 
   public void setNickname(String nickname) {
@@ -61,6 +61,10 @@ public class User {
   public void setRole(Role role) {
     this.role = role;
   }
+
+  public void addSubList(ShareList list) { subscribing.add(list); }
+
+  public void removeSubList(ShareList list) { subscribing.remove(list); }
 
   public String newAccessToken(Jwt jwt, String[] roles) { return jwt.newAccessToken(Jwt.Claims.of(oAuth2Id,email,roles)); }
 

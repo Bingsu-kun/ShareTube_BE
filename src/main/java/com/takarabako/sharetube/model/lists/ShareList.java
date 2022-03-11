@@ -29,6 +29,8 @@ public class ShareList {
 
   private String title;
 
+  private String description;
+
   @OneToMany
   @JoinColumn(name = "users_oauth2_id")
   private List<User> subscriber;
@@ -37,8 +39,8 @@ public class ShareList {
 
   private int views;
 
-  public ShareList(User author, String thumbnail, String title, String channelIds) {
-    this(null,author,thumbnail,title,new ArrayList<>(), channelIds, 0);
+  public ShareList(User author, String thumbnail, String title, String description, String channelIds) {
+    this(UUID.randomUUID(),author,thumbnail,title,description,new ArrayList<>(), channelIds, 0);
   }
 
   public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
@@ -46,6 +48,8 @@ public class ShareList {
   public void setTitle(String title) {
     this.title = title;
   }
+
+  public void setDescription(String description) { this.description = description; }
 
   public void setChannelIds(String channelIds) {
     this.channelIds = channelIds;

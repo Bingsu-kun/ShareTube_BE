@@ -99,6 +99,8 @@ public class YoutubeUtils {
 
   public HashMap<String, Object> getTop10Subs(String accessToken) {
 
+    int total;
+
     List<ChannelDto> items = new ArrayList<>();
 
     HttpHeaders headers = new HttpHeaders();
@@ -112,6 +114,7 @@ public class YoutubeUtils {
     try {
       responseBody = om.readValue(rt.exchange(requestUrl, HttpMethod.GET, entity, String.class).getBody(), YoutubeSubscriptionResponseDto.class);
       String id = createIdString(responseBody.getItems());
+      total = responseBody.getPageInfo().getTotalResults();
       items.addAll(getChannelsDetails(id));
     } catch (JsonProcessingException e) {
       throw new JsonParseException("json 데이터를 파싱하는 중 에러가 발생했습니다. cause : " + e.getMessage());
@@ -121,8 +124,8 @@ public class YoutubeUtils {
 
     HashMap<String, Object> response = new HashMap<>();
 
-    response.put("totalSubscriptions",10);
-    response.put("channelDetails",items);
+    response.put("totalSubscriptions",total);
+    response.put("topChannels",items);
 
     return response;
   }

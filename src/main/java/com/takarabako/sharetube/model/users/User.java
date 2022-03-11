@@ -42,13 +42,17 @@ public class User {
   @JoinColumn(name = "lists_id")
   private List<ShareList> subscribing;
 
+  private int lastTotal;
+
   public User(String oAuth2Id, String email, String nickname, String profileImgUrl, Role role) {
-    this(oAuth2Id, email, nickname, profileImgUrl, role, new ArrayList<ShareList>(), new ArrayList<ShareList>());
+    this(oAuth2Id, email, nickname, profileImgUrl, role, new ArrayList<ShareList>(), new ArrayList<ShareList>(), 0);
   }
 
   public void setNickname(String nickname) {
     this.nickname = nickname;
   }
+
+  public void setLastTotal(int total) { this.lastTotal = total; }
 
   public void setProfileImgUrl(String profileImgUrl) {
     this.profileImgUrl = profileImgUrl;

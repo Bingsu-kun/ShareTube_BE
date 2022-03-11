@@ -10,21 +10,21 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDto {
 
-  private String userId;
+  private String id;
+
+  private String nickname;
 
   private String email;
 
-  private String name;
+  private String profile;
 
-  private String profImgUrl;
-
-  private String userRole;
+  private String role;
 
   public UserDto(User user) {
-    this.userId = user.getOAuth2Id();
+    this.id = user.getOAuth2Id();
     this.email = user.getEmail();
-    this.name = user.getNickname();
-    this.profImgUrl = user.getProfileImgUrl();
-    this.userRole = user.getRole().name();
+    this.nickname = user.getNickname();
+    this.profile = user.getProfileImgUrl();
+    this.role = user.getRole().name();
   }
 }

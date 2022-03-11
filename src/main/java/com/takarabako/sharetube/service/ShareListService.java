@@ -51,6 +51,7 @@ public class ShareListService {
 
   @Transactional
   public ShareListResponseDto getDetailList(String oauth2Id, UUID id) {
+    // 파라미터로 oauth2Id 가 있는 이유는 조회수를 조작하기 위함. 실제적으로 채널을 가져오는 동작에는 관여하지 않음.
     ShareList list = shareListRepository.getById(id);
     if (!list.getAuthor().getOAuth2Id().equals(oauth2Id))
       list.addViews();

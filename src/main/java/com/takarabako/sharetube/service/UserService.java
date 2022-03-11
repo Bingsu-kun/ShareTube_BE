@@ -1,14 +1,17 @@
 package com.takarabako.sharetube.service;
 
+import com.takarabako.sharetube.controller.shareList.ShareListResponseDto;
 import com.takarabako.sharetube.error.NotFoundException;
 import com.takarabako.sharetube.model.lists.ShareList;
 import com.takarabako.sharetube.model.users.User;
+import com.takarabako.sharetube.repository.ShareListRepository;
 import com.takarabako.sharetube.repository.UserRepository;
 import com.takarabako.sharetube.util.RedisUtils;
 import com.takarabako.sharetube.util.YoutubeUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,11 +20,13 @@ import java.util.List;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final ShareListService shareListService;
   private final RedisUtils redisUtils;
   private final YoutubeUtils youtubeUtils;
 
-  public UserService(UserRepository userRepository, RedisUtils redisUtils, YoutubeUtils youtubeUtils) {
+  public UserService(UserRepository userRepository, ShareListService shareListService, RedisUtils redisUtils, YoutubeUtils youtubeUtils) {
     this.userRepository = userRepository;
+    this.shareListService = shareListService;
     this.redisUtils = redisUtils;
     this.youtubeUtils = youtubeUtils;
   }
@@ -68,13 +73,41 @@ public class UserService {
   }
 
   @Transactional
-  public List<ShareList> getMyList(String oauth2Id) {
-    return userRepository.getById(oauth2Id).getMyLists();
+  public int[] summary(String oauth2Id) {
+    User user = userRepository.getById(oauth2Id);
+    List<ShareList> createdLists = user.getMyLists();
+
+    int views = 0;
+
+    for (ShareList list : createdLists) {
+      views += list.getViews();
+    }
+
+    return new int[]{createdLists.size(), views};
   }
 
   @Transactional
-  public List<ShareList> getSharedList(String oauth2Id) {
-    return userRepository.getById(oauth2Id).getSubscribing();
+  public List<ShareListResponseDto> getMyList(String oauth2Id) {
+    List<ShareList> lists = userRepository.getById(oauth2Id).getMyLists();
+    List<ShareListResponseDto> response = new ArrayList<>();
+
+    for (ShareList list : lists) {
+      response.add(shareListService.getSimpleList(list.getId()));
+    }
+
+    return response;
+  }
+
+  @Transactional
+  public List<ShareListResponseDto> getSharedList(String oauth2Id) {
+    List<ShareList> lists = userRepository.getById(oauth2Id).getSubscribing();
+    List<ShareListResponseDto> response = new ArrayList<>();
+
+    for (ShareList list : lists) {
+      response.add(shareListService.getSimpleList(list.getId()));
+    }
+
+    return response;
   }
 
   // Youtube API
@@ -85,7 +118,9 @@ public class UserService {
     String accessToken = redisUtils.getAccessToken(userId);
     User user = userRepository.getById(userId);
     HashMap<String,Object> response = youtubeUtils.getSubscriptions(accessToken);
+
     user.setLastTotal(Integer.parseInt(response.get("totalSubscriptions").toString()));
+
     return response;
   }
 
@@ -93,7 +128,9 @@ public class UserService {
     String accessToken = redisUtils.getAccessToken(userId);
     User user = userRepository.getById(userId);
     HashMap<String,Object> response = youtubeUtils.getTop10Subs(accessToken);
+
     user.setLastTotal(Integer.parseInt(response.get("totalSubscriptions").toString()));
+
     return response;
   }
 

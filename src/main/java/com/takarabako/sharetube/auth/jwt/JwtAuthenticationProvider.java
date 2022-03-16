@@ -5,6 +5,7 @@ import com.takarabako.sharetube.controller.user.UserDto;
 import com.takarabako.sharetube.error.NotFoundException;
 import com.takarabako.sharetube.model.users.User;
 import com.takarabako.sharetube.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.util.ClassUtils.isAssignable;
 
+@Slf4j
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
   private final Jwt jwt;
@@ -41,6 +43,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
       // 반환 할 JwtAuthenticationToken을 만들어준다.
       JwtAuthenticationToken authenticatedToken =
               new JwtAuthenticationToken(new JwtAuthentication(user.getOAuth2Id(),user.getEmail()),null,createAuthorityList(user.getRole().name()));
+      log.info(user.getRole().name());
       String accessToken = user.newAccessToken(jwt, new String[]{ user.getRole().name() });
       authenticatedToken.setDetails(new OAuth2Result(accessToken,new UserDto(user)));
       return authenticatedToken;

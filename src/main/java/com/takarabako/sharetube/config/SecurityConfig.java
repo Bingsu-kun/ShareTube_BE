@@ -10,6 +10,7 @@ import com.takarabako.sharetube.auth.oauth2.CustomOAuth2UserService;
 import com.takarabako.sharetube.auth.EntryPointUnauthorizedHandler;
 import com.takarabako.sharetube.model.common.Role;
 import com.takarabako.sharetube.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -145,14 +147,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               .and()
             .authorizeRequests()
-              .antMatchers("/","/login/**","/auth/**").permitAll()
-              .antMatchers("/api/**").hasAnyRole(Role.USER.name(),Role.ADMIN.name())
+              .antMatchers("/","/login/**","/auth/**","/api/list/simple/**","/api/list/detail/**").permitAll()
+              .antMatchers("/api/**").hasAnyAuthority("USER","ADMIN")
               .accessDecisionManager(accessDecisionManager())
-              .anyRequest().permitAll()
+              .anyRequest().authenticated()
               .and()
             .logout()
-              .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-              .and()
+              .disable()
             .formLogin()
               .disable()
             .oauth2Login()

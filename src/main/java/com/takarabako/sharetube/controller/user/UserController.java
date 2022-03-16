@@ -2,7 +2,10 @@ package com.takarabako.sharetube.controller.user;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.takarabako.sharetube.auth.jwt.JwtAuthentication;
+import com.takarabako.sharetube.controller.shareList.BothShareListDto;
+import com.takarabako.sharetube.controller.shareList.CreatedShareListDto;
 import com.takarabako.sharetube.controller.shareList.ShareListResponseDto;
+import com.takarabako.sharetube.controller.shareList.SharedShareListDto;
 import com.takarabako.sharetube.error.NotFoundException;
 import com.takarabako.sharetube.error.UnAuthorizedException;
 import com.takarabako.sharetube.model.common.ApiResult;
@@ -56,7 +59,7 @@ public class UserController {
     }
   }
 
-  @GetMapping(path = "/summary")
+  @GetMapping(path = "/list/summary")
   public ApiResult<ActivitySummaryDto> summary(@AuthenticationPrincipal JwtAuthentication authentication) {
 
     int[] summary = userService.summary(authentication.userId);
@@ -73,9 +76,9 @@ public class UserController {
   }
 
   @GetMapping(path = "/list/created")
-  public ApiResult<List<ShareListResponseDto>> getMyListSummary(@AuthenticationPrincipal JwtAuthentication authentication) {
+  public ApiResult<CreatedShareListDto> getMyListSummary(@AuthenticationPrincipal JwtAuthentication authentication) {
     try {
-      return OK(userService.getMyList(authentication.userId));
+      return OK(new CreatedShareListDto(userService.getMyList(authentication.userId)));
     } catch (NotFoundException e) {
       return ERROR(new NotFoundException(e.getMessage()),404);
     } catch (UnAuthorizedException e) {
@@ -87,9 +90,23 @@ public class UserController {
   }
 
   @GetMapping(path = "/list/shared")
-  public ApiResult<List<ShareListResponseDto>> getSharedList(@AuthenticationPrincipal JwtAuthentication authentication) {
+  public ApiResult<SharedShareListDto> getSharedList(@AuthenticationPrincipal JwtAuthentication authentication) {
     try {
-      return OK(userService.getSharedList(authentication.userId));
+      return OK(new SharedShareListDto(userService.getSharedList(authentication.userId)));
+    } catch (NotFoundException e) {
+      return ERROR(new NotFoundException(e.getMessage()),404);
+    } catch (UnAuthorizedException e) {
+      return ERROR(new UnAuthorizedException(e.getMessage()), 401);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ERROR("unexpected error occurred", 500);
+    }
+  }
+
+  @GetMapping(path = "/list/both")
+  public ApiResult<BothShareListDto> getBothList(@AuthenticationPrincipal JwtAuthentication authentication) {
+    try {
+      return OK(new BothShareListDto(userService.getMyList(authentication.userId),userService.getSharedList(authentication.userId)));
     } catch (NotFoundException e) {
       return ERROR(new NotFoundException(e.getMessage()),404);
     } catch (UnAuthorizedException e) {

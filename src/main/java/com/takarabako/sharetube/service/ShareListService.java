@@ -8,6 +8,7 @@ import com.takarabako.sharetube.model.youtube.ChannelDto;
 import com.takarabako.sharetube.repository.ShareListRepository;
 import com.takarabako.sharetube.repository.UserRepository;
 import com.takarabako.sharetube.util.YoutubeUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class ShareListService {
 
@@ -32,7 +34,6 @@ public class ShareListService {
   public ShareList create(String userId, String thumbnail, String listTitle, String description, List<String> channels) {
     User author = userRepository.getById(userId);
     String channelIds = createIdString(channels);
-
     ShareList shareList = new ShareList(author,thumbnail,listTitle,description,channelIds);
     shareListRepository.save(shareList);
 
@@ -54,22 +55,30 @@ public class ShareListService {
     ShareList list = shareListRepository.getById(id);
     if (!list.getAuthor().getOAuth2Id().equals(oauth2Id))
       list.addViews();
+    log.info("when getChannel : " + list.getChannelIds());
+    // 50개씩 끊어서 요청하기 위해
     String[] channels = list.getChannelIds().split(",");
     StringBuilder channelIds = new StringBuilder();
 
     List<ChannelDto> channelList = new ArrayList<>();
 
     for (int count = 0; count < channels.length; count++) {
+      // 50번 까지 모음.
       if (channelIds.toString().equals("")) {
         channelIds.append(channels[count]);
       } else {
         channelIds.append(",").append(channels[count]);
       }
 
+      // 50번 되었을 때 채널 정보 가져옴.
       if ((count+1) % 50 == 0) {
         channelList.addAll(youtubeUtils.getChannelsDetails(channelIds.toString()));
         channelIds = new StringBuilder();
       }
+    }
+
+    if (!channelIds.toString().equals("")) {
+      channelList.addAll(youtubeUtils.getChannelsDetails(channelIds.toString()));
     }
 
     return ShareListResponseDto.DETAIL(list.getId(),list.getAuthor().getOAuth2Id(),list.getAuthor().getNickname(),

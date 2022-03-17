@@ -6,6 +6,7 @@ import com.takarabako.sharetube.error.UnAuthorizedException;
 import com.takarabako.sharetube.model.common.ApiResult;
 import com.takarabako.sharetube.model.lists.ShareList;
 import com.takarabako.sharetube.service.ShareListService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import static com.takarabako.sharetube.model.common.ApiResult.ERROR;
 import static com.takarabako.sharetube.controller.shareList.ShareListResponseDto.SIMPLE;
 import static com.takarabako.sharetube.controller.shareList.ShareListResponseDto.DETAIL;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/api")
 public class ShareListController {
